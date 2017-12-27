@@ -30,7 +30,9 @@ Example API usage for reading data from a NoSQL DB:
    firstUser := users.Next()
 ```
 
-The Data Source driver is running in separate Go routines and accepts the Go bases request structure (nuclio will handle mapping requests from other languages like Python, Java, .. to Go structured using high speed and zero-copy ser/des based on Capn Proto or C structs). It maps and submits the request to the native data source APIs, the responses are returned to the function runtime using a Channel, the driver can pre-fetch more data based on the progress of the iterator.   
+The Data Source driver is running in separate Go routines and accepts the Go bases request structure (nuclio will handle mapping requests from other languages like Python, Java, .. to Go structured using high speed and zero-copy ser/des based on Capn Proto or C structs). It maps and submits the request to the native data source APIs, the responses are returned to the function runtime using a Channel, the driver can pre-fetch more data based on the progress of the iterator.
+
+The Data is passed as bytes buffer vector for unstructured data or serialized using a supported "decoder" (e.g. Json, Capn Proto, Protobuf, Arrow decoders) for tables/documents.
 
 # Data Binding APIs by Category 
 
