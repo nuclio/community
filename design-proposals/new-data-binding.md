@@ -46,6 +46,8 @@ The waitgroup id will allow waiting for all the operations with the same Id usin
 
 for Get or Read operations do not block, the command returns a dataset/iterator object which can be read later. 
 
+Multiple options (`.Option(key, val string)`) can be added to almost any request type and will be passed to the plug-in driver as a `map[string]string` structure 
+
 ## Object
 
 Requests: 
@@ -85,7 +87,7 @@ Requests:
 Requests: 
 
 ```golang
-    Stream.Read(name, id, from string)
+    Stream.Read(name, shardId, from string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
