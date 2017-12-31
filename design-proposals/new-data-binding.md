@@ -27,7 +27,7 @@ A user/developer creates a request object using a lazy evaluation method (simila
  
 Example API usage for reading data from a NoSQL DB:
 ```golang
-   userTable := dbind.Table.Read(key1,key2).Select("user","addr","phone").Load("users")
+   userTable := dbind.Table.Read("users", key1,key2).Select("user","addr","phone").Load()
    firstUser := userTable.Next()
 ```
 
@@ -44,7 +44,7 @@ When using the `Do()` option the operation will block until a response is availa
 On the other hand `DoAsync(waitgroup)` operation will not block and return a request object which can be read later,  
 The waitgroup id will allow waiting for all the operations with the same Id using the `Wait(waitgroup)` operation.
 
-for Get or Read operations do not block, the command returns a dataset object which can be read later. 
+for Get or Read operations do not block, the command returns a dataset/iterator object which can be read later. 
 
 ## Object
 
@@ -113,8 +113,7 @@ Requests:
 Requests: 
 
 ```golang
-    Table.Read(path string)
-         .Keys(keys ...string)
+    Table.Read(path string, keys ...string)
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
@@ -124,7 +123,6 @@ Requests:
 
     Table.Write(path string)
          .Items(items ...*Record)
-         .Keys(keys ...string)      ????
          .Format(format string)
          .Expression(expr string)
          .Condition(cond string)
