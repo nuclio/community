@@ -19,6 +19,7 @@ The Data Bindings are divided to 3 main categories (others or custom ones can be
 * Object - Unstructured Object or File storage
 * Table - SQL and NoSQL Databases, Structured files (CSV, Json, ..)
 * Message - Stream and Message-queue
+* Generic - Any other type, the request/response structures are user/plug-in defined
 
 The user/operator provides the data connection details and security credentials in the function spec (or UI/CLI), those details are passed to the data-binding driver (implemented in Go) which establishes the data connection at the processor init phase, the plug-in can also report errors to the function or platform logs.  
 
@@ -26,25 +27,140 @@ A user/developer creates a request object using a lazy evaluation method (simila
  
 Example API usage for reading data from a NoSQL DB:
 ```golang
-   users := dbind.Table.Read(key1,key2).Select("user","addr","phone").Load("users")
-   firstUser := users.Next()
+   userTable := dbind.Table.Read(key1,key2).Select("user","addr","phone").Load("users")
+   firstUser := userTable.Next()
 ```
 
 The Data Source driver is running in separate Go routines and accepts the Go bases request structure (nuclio will handle mapping requests from other languages like Python, Java, .. to Go structured using high speed and zero-copy ser/des based on Capn Proto or C structs). It maps and submits the request to the native data source APIs, the responses are returned to the function runtime using a Channel, the driver can pre-fetch more data based on the progress of the iterator.
 
-The Data is passed as bytes buffer vector for unstructured data or serialized using a supported "decoder" (e.g. Json, Capn Proto, Protobuf, Arrow decoders) for tables/documents.
+The Data is passed as bytes buffer vector for unstructured data or serialized using a supported "encoder" (e.g. Json, Capn Proto, Protobuf, Arrow decoders) for tables/documents.
 
 # Data Binding APIs by Category 
 
+## Common Semantics
+
+Data binding APIs are asynchronous, the client passes a request to the plug-in driver and can block or continue.
+When using the `Do()` option the operation will block until a response is available, and will return a response object
+On the other hand `DoAsync(waitgroup)` operation will not block and return a request object which can be read later,  
+The waitgroup id will allow waiting for all the operations with the same Id using the `Wait(waitgroup)` operation.
+
+for Get or Read operations do not block, the command returns a dataset object which can be read later. 
+
 ## Object
+
+Requests: 
+
+```golang
+    // Object Put command
+    Object.Put(key string, data ...[]byte)
+          .Add(data ...[]byte)
+          .Metadata(meta map[string]string)
+          .Do() | .DoAsync(wg int)
+          
+    // Object Get command
+    Object.Get(path string, ranges ...int)
+          .Condition(key, value string)
+          .Load() | .ReadAll()
+          
+    // Object Delete command
+    Object.Del(path string)
+          .Condition(key, value string)
+          .Do() | .DoAsync(wg int)
+                   
+    // Object Head command
+    Object.Head(path string)
+          .Condition(key, value string)
+          .Do() | .DoAsync(wg int)
+
+    // Object List command
+    Object.List(prefix string)
+          .Limit(limit int)
+          .Delimiter (dl string)
+          .Load() 
+                   
+```
+
+## Stream
+
+Requests: 
+
+```golang
+    Stream.Read(name, id, from string)
+          .Format(format string)
+          .Where(filter string)
+          .Select(fields ...string)
+          .Load()
+
+    Stream.Write(name string)
+          .Messages(messages ...*Message)
+          .Buffers(bufs ...[]byte)
+          .Do() | .DoAsync(wg int)
+          
+    Stream.Create(name string, shards int) 
+          .Option(key, val string)
+          .Do() | .DoAsync(wg int)
+              
+    Stream.Update(name string, shards int)          
+          .Option(key, val string)
+          .Do() | .DoAsync(wg int)
+              
+    Stream.Delete(name string)
+          .Do() | .DoAsync(wg int)    
+```
 
 ## Table
 
-## Stream
+Requests: 
+
+```golang
+    Table.Read(path string)
+         .Keys(keys ...string)
+         .Format(format string)
+         .Where(filter string)
+         .Select(fields ...string)
+         .Option(key, val string)
+         .Schema(??)
+         .Load()
+
+    Table.Write(path string)
+         .Items(items ...*Record)
+         .Keys(keys ...string)      ????
+         .Format(format string)
+         .Expression(expr string)
+         .Condition(cond string)
+         .Option(key, val string)
+         .Schema(??)
+         .Do() | .DoAsync(wg int)
+    
+    Table.Query(sql string)
+    
+    Table.Exec(sql string)    
+    
+    Table.Create(path string)
+    ...
+    
+    Table.Drop(path string)
+    ...
+    
+```
 
 # Lower Level (Driver) API
 
 ## Request Structures 
+
+## Response channel 
+
+```golang
+    RespCode    int
+    Size        int
+    Encoding    EncodintType
+    IsArray     bool
+    IsLast      bool
+    Behind      int
+    Buffer      *[]byte
+```
+
+## Detailed Request Structures
 
 ### Base/Simple Request
 This is the base request class which can also be used for simple requests types 
