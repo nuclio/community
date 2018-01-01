@@ -158,7 +158,7 @@ Create, Del, Update, and Write Response:
 Requests: 
 
 ```golang
-    Table.GetItems(path string, keys ...string)
+    Table.read(path string, keys ...string)
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
@@ -166,7 +166,7 @@ Requests:
          .Schema(??)
          .Load()
 
-    Table.Update(path string)
+    Table.write(path string)
          .WithItems(items ...*Record)
          .Format(format string)
          .WithExpression(expr string,keys)
