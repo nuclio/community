@@ -50,19 +50,19 @@ Multiple options (`.Option(key, val string)`) can be added to almost any request
 
 ## Object
 
-Requests: 
+### Requests: 
 
 ```golang
+    // Object Get command
+    Object.Get(path string, ranges ...int)
+          .Condition(key, value string)
+          .Load() | .ReadAll()
+          
     // Object Put command
     Object.Put(key string, data ...[]byte)
           .Add(data ...[]byte)
           .Metadata(meta map[string]string)
           .Do() | .DoAsync(wg int)
-          
-    // Object Get command
-    Object.Get(path string, ranges ...int)
-          .Condition(key, value string)
-          .Load() | .ReadAll()
           
     // Object Delete command
     Object.Del(path string)
@@ -82,12 +82,31 @@ Requests:
                    
 ```
 
-## Stream
+### Responses:
 
-Requests: 
+Get Response:
 
 ```golang
-    Stream.Read(name, shardId, from string)
+type ObjGetResp interface {
+    Error()     err    
+    ReadAll()   []bytes
+    ...
+}
+```
+
+Put, Del, and Head Response:
+
+List Response:
+
+ 
+
+## Stream
+
+### Requests: 
+
+```golang
+    Stream.Read(name, shardId)
+          .From(kind, value string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
@@ -109,6 +128,23 @@ Requests:
     Stream.Delete(name string)
           .Do() | .DoAsync(wg int)    
 ```
+
+### Responses:
+
+Read Response:
+
+```golang
+type ObjGetResp interface {
+    Error()      err    
+    Next()       *Message
+    NextBytes()  []bytes
+    ...
+}
+```
+
+Create, Del, Update, and Write Response:
+
+
 
 ## Table
 
