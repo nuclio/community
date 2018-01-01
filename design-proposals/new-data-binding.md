@@ -100,33 +100,40 @@ List Response:
 
  
 
-## Stream
+## Message / Stream?
 
 ### Requests: 
 
 ```golang
-    Stream.Read(name, shardId)
+    Message.Iterator(name, shardId)
           .From(kind, value string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
           .Load()
 
-    Stream.Write(name string)
+    Message.Send(name string)
           .Messages(messages ...*Message)
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
           
-    Stream.Create(name string, shards int) 
+    Message.CreateQueue(name string, shards int) 
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Update(name string, shards int)          
+    Message.UpdateQueue(name string, shards int)          
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Delete(name string)
-          .Do() | .DoAsync(wg int)    
+    Message.DeleteQueue(name string)
+          .Do() | .DoAsync(wg int)  
+          
+    Message.ListShards(name string)  
+          
+    Iterator.Checkpoint()
+    Iterator.GetPosition()
+    Iterator.Next()
+    Iterator.HasNext()
 ```
 
 ### Responses:
@@ -151,7 +158,7 @@ Create, Del, Update, and Write Response:
 Requests: 
 
 ```golang
-    Table.Read(path string, keys ...string)
+    Table.GetItems(path string, keys ...string)
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
@@ -159,13 +166,12 @@ Requests:
          .Schema(??)
          .Load()
 
-    Table.Write(path string)
-         .Items(items ...*Record)
+    Table.Update(path string)
+         .WithItems(items ...*Record)
          .Format(format string)
-         .Expression(expr string)
+         .WithExpression(expr string,keys)
          .Condition(cond string)
          .Option(key, val string)
-         .Schema(??)
          .Do() | .DoAsync(wg int)
     
     Table.Query(sql string)
@@ -173,6 +179,9 @@ Requests:
     Table.Exec(sql string)    
     
     Table.Create(path string)
+         .Schema()
+         .PrimaryKey(partitionKey,SortingKey)
+        
     ...
     
     Table.Drop(path string)
