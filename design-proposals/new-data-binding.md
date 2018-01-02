@@ -130,10 +130,6 @@ List Response:
           
     Stream.ListShards(name string)  
           
-    Iterator.Checkpoint()
-    Iterator.GetPosition()
-    Iterator.Next()
-    Iterator.HasNext()
 ```
 
 ### Responses:
@@ -142,12 +138,16 @@ Read Response:
 
 ```golang
 type ObjGetResp interface {
-    Error()      err    
-    Next()       *Message
-    NextBytes()  []bytes
-    ...
+    Error()              err    
+    Next()              *Message
+    NextBytes()          []bytes
+    Checkpoint(Message)   
+    GetPosition()        string 
+    HasNext()            bool 
+    Close()    
 }
 ```
+
 
 Create, Del, Update, and Write Response:
 
@@ -163,6 +163,7 @@ Requests:
          .Where(filter string)
          .Select(fields ...string)
          .Option(key, val string)
+         .Partition(part int, outpart int) 
          .Schema(??)
          .Load()
 
