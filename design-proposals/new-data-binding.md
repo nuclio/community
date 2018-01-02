@@ -100,35 +100,35 @@ List Response:
 
  
 
-## Message / Stream?
+## Stream
 
 ### Requests: 
 
 ```golang
-    Message.Iterator(name, shardId)
+    Stream.retrieve(path string)
           .From(kind, value string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
           .Load()
 
-    Message.Send(name string)
+    Stream.send(path string)
           .Messages(messages ...*Message)
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
           
-    Message.CreateQueue(name string, shards int) 
+    Stream.Create(name string, shards int) 
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Message.UpdateQueue(name string, shards int)          
+    Stream.Update(name string, shards int)          
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Message.DeleteQueue(name string)
+    Stream.Delete(name string)
           .Do() | .DoAsync(wg int)  
           
-    Message.ListShards(name string)  
+    Stream.ListShards(name string)  
           
     Iterator.Checkpoint()
     Iterator.GetPosition()
