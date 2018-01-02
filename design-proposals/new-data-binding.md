@@ -117,18 +117,18 @@ List Response:
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
           
-    Stream.Create(name string, shards int) 
+    Stream.Create(path string,name string, shards int) 
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Update(name string, shards int)          
+    Stream.Update(path string, shards int)          
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Delete(name string)
+    Stream.Delete(path string)
           .Do() | .DoAsync(wg int)  
           
-    Stream.ListShards(name string)  
+    Stream.ListShards(path string)  
           
 ```
 
@@ -168,9 +168,9 @@ Requests:
          .Load()
 
     Table.Write(path string)
-         .WithItems(items ...*Record)
+         .WithItems(items ...*Items)
          .Format(format string)
-         .WithExpression(expr string,keys)
+         .WithExpression(expr string,keys string)
          .Condition(cond string)
          .Option(key, val string)
          .Do() | .DoAsync(wg int)
@@ -181,13 +181,25 @@ Requests:
     
     Table.Create(path string)
          .Schema()
-         .PrimaryKey(partitionKey,SortingKey)
+         .PrimaryKey(partitionKey string,SortingKey string)
         
     ...
     
     Table.Drop(path string)
     ...
     
+```
+### Responses:
+
+Read Response:
+
+```golang
+type ObjGetResp interface {
+    Error()              err    
+    Next()              *Item   
+    HasNext()            bool 
+    Close()    
+}
 ```
 
 # Lower Level (Driver) API
