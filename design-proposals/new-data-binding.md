@@ -105,28 +105,31 @@ List Response:
 ### Requests: 
 
 ```golang
-    Stream.Read(name, shardId)
+    Stream.Retrieve(path string)
           .From(kind, value string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
           .Load()
 
-    Stream.Write(name string)
+    Stream.Send(path string)
           .Messages(messages ...*Message)
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
           
-    Stream.Create(name string, shards int) 
+    Stream.Create(path string,name string, shards int) 
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Update(name string, shards int)          
+    Stream.Update(path string, shards int)          
           .Option(key, val string)
           .Do() | .DoAsync(wg int)
               
-    Stream.Delete(name string)
-          .Do() | .DoAsync(wg int)    
+    Stream.Delete(path string)
+          .Do() | .DoAsync(wg int)  
+          
+    Stream.ListShards(path string)  
+          
 ```
 
 ### Responses:
@@ -135,12 +138,16 @@ Read Response:
 
 ```golang
 type ObjGetResp interface {
-    Error()      err    
-    Next()       *Message
-    NextBytes()  []bytes
-    ...
+    Error()              err    
+    Next()              *Message
+    NextBytes()          []bytes
+    Checkpoint(Message)   
+    GetPosition(Message) string 
+    HasNext()            bool 
+    Close()    
 }
 ```
+
 
 Create, Del, Update, and Write Response:
 
@@ -155,29 +162,43 @@ Requests:
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
+         .sql(string sqlquery)
          .Option(key, val string)
-         .Schema(??)
+         .Partition(part int, outpart int) 
+         .Schema(schema schema)
          .Load()
 
     Table.Write(path string)
-         .Items(items ...*Record)
+         .WithItems(items ...*Items)
          .Format(format string)
-         .Expression(expr string)
+         .WithExpression(expr string,attributess ... interface{})
+         .Keys(keys string) 
          .Condition(cond string)
          .Option(key, val string)
-         .Schema(??)
          .Do() | .DoAsync(wg int)
-    
-    Table.Query(sql string)
-    
-    Table.Exec(sql string)    
+  
     
     Table.Create(path string)
+         .Schema()
+         .PrimaryKey(partitionKey string,SortingKey string)
+        
     ...
     
     Table.Drop(path string)
     ...
     
+```
+### Responses:
+
+Read Response:
+
+```golang
+type ObjGetResp interface {
+    Error()              err    
+    Next()              *Item   
+    HasNext()            bool 
+    Close()    
+}
 ```
 
 # Lower Level (Driver) API
