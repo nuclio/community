@@ -105,14 +105,14 @@ List Response:
 ### Requests: 
 
 ```golang
-    Stream.retrieve(path string)
+    Stream.Retrieve(path string)
           .From(kind, value string)
           .Format(format string)
           .Where(filter string)
           .Select(fields ...string)
           .Load()
 
-    Stream.send(path string)
+    Stream.Send(path string)
           .Messages(messages ...*Message)
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
@@ -158,7 +158,7 @@ Create, Del, Update, and Write Response:
 Requests: 
 
 ```golang
-    Table.read(path string, keys ...string)
+    Table.Read(path string, keys ...string)
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
@@ -166,7 +166,7 @@ Requests:
          .Schema(??)
          .Load()
 
-    Table.write(path string)
+    Table.Write(path string)
          .WithItems(items ...*Record)
          .Format(format string)
          .WithExpression(expr string,keys)
