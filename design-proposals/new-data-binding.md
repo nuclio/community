@@ -142,7 +142,7 @@ type ObjGetResp interface {
     Next()              *Message
     NextBytes()          []bytes
     Checkpoint(Message)   
-    GetPosition()        string 
+    GetPosition(Message) string 
     HasNext()            bool 
     Close()    
 }
@@ -162,22 +162,21 @@ Requests:
          .Format(format string)
          .Where(filter string)
          .Select(fields ...string)
+         .sql(string sqlquery)
          .Option(key, val string)
          .Partition(part int, outpart int) 
-         .Schema(??)
+         .Schema(schema schema)
          .Load()
 
     Table.Write(path string)
          .WithItems(items ...*Items)
          .Format(format string)
-         .WithExpression(expr string,keys string)
+         .WithExpression(expr string,attributess ... interface{})
+         .Keys(keys string) 
          .Condition(cond string)
          .Option(key, val string)
          .Do() | .DoAsync(wg int)
-    
-    Table.Query(sql string)
-    
-    Table.Exec(sql string)    
+  
     
     Table.Create(path string)
          .Schema()
