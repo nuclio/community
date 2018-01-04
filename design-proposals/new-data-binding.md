@@ -35,7 +35,7 @@ by the application, data is pre-fetched asynchronously to avoid redundant blocki
  
 Example API usage for reading data from a NoSQL DB:
 ```golang
-   userTable := dc.Table.Read("db0:users", key1,key2).Select("user","addr","phone").Load()
+   userTable := dc.Table.Read("db0://users", key1,key2).Select("user","addr","phone").Load()
    firstUser := userTable.Next()
 ```
 
@@ -60,8 +60,8 @@ The waitgroup id will allow waiting for all the operations with the same Id usin
 Read operations do not block, the command returns a dataset/iterator object which can be read later, if the iterator 
 object did not reach the end and the `.Next()` method cannot serve data it will block until data will become available.
 
-Multiple options (`.Option(key, val string)`) can be added to almost any request type and will be passed to the plug-in 
-driver as a `map[string]string` structure.
+Multiple options (`.Option(key, val interface{})`) can be added to almost any request type and will be passed to the 
+plug-in driver as a `map[string]interface{}` structure.
 
 ## Path and Namespace semantics
 
@@ -75,7 +75,7 @@ command, if the spec path is empty it will be the command path, if the spec full
 the path in the command must be an empry string, we can also have a path in the data binding spec (e.g. dir name) and
 a path in the command for sub-dir and file name.
 
-the command path is prefixed by the data binding name and ":", for example `db0:mytable`, `obj:path/to/object`,
+the command path is prefixed by the data binding name and "://", for example `db0://mytable`, `obj://path/to/object`,
 if the data binding prefix is not specified we assume the first data binding.
   
 
@@ -122,6 +122,7 @@ type ObjGetResp interface {
     Error()     err    
     Size()      int    
     ReadAll()   []bytes
+    Gen()       string 
     ...
 }
 ```
@@ -147,7 +148,7 @@ Put, Del, and Head use the base response interface
 ### Requests: 
 
 ```golang
-    Stream.Retrieve(path string)
+    Stream.Consume(path string)
           .From(kind, value string)
           .Format(format string)
           .Where(filter string)
@@ -174,7 +175,7 @@ Put, Del, and Head use the base response interface
 
 ### Responses:
 
-Read Response:
+Consume Response:
 
 ```golang
 type StreamGetResp interface {
@@ -233,9 +234,10 @@ Read Response:
 
 ```golang
 type ObjGetResp interface {
-    Error()              err    
-    Next()              *Item   
-    HasNext()            bool 
+    Error()       error    
+    Next()        *Item   
+    HasNext()     bool 
+    Scan(fields string, pointers ...interface{}) error 
     Close()    
 }
 ```
@@ -251,7 +253,7 @@ metadata have their own `RequestDetails` structure with its type indicated by `C
 type DataRequest struct {
     Command         CommandType
     Path            string
-    Options         *map[string]string
+    Options         *map[string]interface{}
     RequestDetails  interface{}
     RespChannel     chan ResponseMessage
 }
