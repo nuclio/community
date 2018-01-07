@@ -155,7 +155,7 @@ Put, Del, and Head use the base response interface
           .Select(fields ...string)
           .Load()
 
-    Stream.Send(path string)
+    Stream.Publish(path string)
           .Messages(messages ...*Message)
           .Buffers(bufs ...[]byte)
           .Do() | .DoAsync(wg int)
@@ -193,7 +193,7 @@ List Shards response:
 
 `TBD`
 
-Create, Del, Update, and Send use the base response interface
+Create, Del, Update, and Publish use the base response interface
 
 
 ## Table
